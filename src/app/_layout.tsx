@@ -1,15 +1,32 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import { useColorScheme } from 'react-native';
+import AuthContextProvider from "@/context/AuthContext";
+import { useTheme } from "@/hooks/useTheme";
+import { client } from "@/lib/appwrite";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import Toast from 'react-native-toast-message';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+export default function RootLayout() {
+  client.ping()
+  const { theme } = useTheme();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <AuthContextProvider>
+      <StatusBar style="auto" />
+      <Stack
+        screenOptions={{
+          headerShown: true,
+          headerStyle: { backgroundColor: theme.background },
+          headerTintColor: theme.title,
+        }}
+      >
+        <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ title: "Home" }} />
+        <Stack.Screen name="about" options={{ title: "About" }} />
+        <Stack.Screen name="contact" options={{ title: "Contact" }} />
+        <Stack.Screen name="device-info" options={{ title: "Device info" }} />
+      </Stack>
+      <Toast />
+    </AuthContextProvider>
   );
 }
