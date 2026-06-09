@@ -17,6 +17,7 @@ export default function RootLayout() {
           headerShown: true,
           headerStyle: { backgroundColor: theme.background },
           headerTintColor: theme.title,
+          headerTitleAlign: "center",
         }}
       >
         <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
