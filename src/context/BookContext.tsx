@@ -1,6 +1,10 @@
 import { useAuthData } from "@/context/AuthContext";
-import { useTheme } from "@/hooks/useTheme";
 import { client, databases } from "@/lib/appwrite";
+import type {
+  IBook,
+  IBookContextState,
+  ICreateBookInput,
+} from "@/types/interface";
 import {
   createContext,
   FC,
@@ -11,40 +15,16 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Alert, StyleSheet } from "react-native";
-import { ID, Models, Permission, Query, Role } from "react-native-appwrite";
+import { Alert } from "react-native";
+import { ID, Permission, Query, Role } from "react-native-appwrite";
 import Toast from "react-native-toast-message";
 
 const DATABASE_ID = "6a21b8910021b8e2a221";
 const COLLECTION_ID = "books";
 
-export interface IBook extends Models.Document {
-  title: string;
-  author: string;
-  description: string;
-  userId: string;
-}
-
-export type ICreateBookInput = Omit<IBook, keyof Models.Document | "userId">;
-
-type IBookContextState = {
-  books: IBook[];
-  currentBook: IBook | null;
-  isLoading: boolean;
-  fetchBooks: () => Promise<void>;
-  fetchBookById: (id: string) => Promise<void>;
-  createBook: (data: ICreateBookInput) => Promise<void>;
-  deleteBook: (id: string) => Promise<void>;
-  updateBook: (
-    documentId: string,
-    data: Partial<ICreateBookInput>
-  ) => Promise<void>;
-};
-
 const BookContext = createContext<IBookContextState | undefined>(undefined);
 
 const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
-  const { theme } = useTheme();
   const { user } = useAuthData();
   const [books, setBooks] = useState<IBook[]>([]);
   const [currentBook, setCurrentBook] = useState<IBook | null>(null);
@@ -110,7 +90,7 @@ const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
           type: "success",
           text1: "Book added! 📚",
           text2: `"${data.title}" has been successfully added to your shelf.`,
-          position: "bottom", // or 'top'
+          position: "bottom",
           visibilityTime: 3000,
         });
       } catch (error) {
@@ -119,7 +99,7 @@ const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
           type: "error",
           text1: `"${data.title}" was not added! 📚`,
           text2: `Failed to add the book. Please try again.`,
-          position: "bottom", // or 'top'
+          position: "bottom",
           visibilityTime: 3000,
         });
         throw error;
@@ -137,7 +117,7 @@ const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
           type: "success",
           text1: "Book removed! 📚",
           text2: `Book id "${id}" has been successfully deleted.`,
-          position: "bottom", // or 'top'
+          position: "bottom",
           visibilityTime: 3000,
         });
       } catch (error) {
@@ -146,7 +126,7 @@ const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
           type: "error",
           text1: `Unable to delete book id "${id}"! 📚`,
           text2: `Failed to delete the book. Please try again.`,
-          position: "bottom", // or 'top'
+          position: "bottom",
           visibilityTime: 3000,
         });
         throw error;
@@ -158,15 +138,12 @@ const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const updateBook = useCallback(
     async (bookId: string, data: Partial<ICreateBookInput>) => {
       try {
-        // Appwrite syntax to partially mutate an existing collection document record
         const updatedDoc = await databases.updateDocument<IBook>(
           DATABASE_ID,
           COLLECTION_ID,
           bookId,
           data
         );
-
-        // Sync local state immediately for instant feedback
 
         if (currentBook?.$id === bookId) {
           setCurrentBook(updatedDoc);
@@ -175,7 +152,7 @@ const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
           type: "success",
           text1: "Book updated! 📚",
           text2: `Book id "${bookId}" has been successfully updated.`,
-          position: "bottom", // or 'top'
+          position: "bottom",
           visibilityTime: 3000,
         });
       } catch (error) {
@@ -184,7 +161,7 @@ const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
           type: "error",
           text1: `Unable to update book id "${bookId}"! 📚`,
           text2: `Failed to update the book. Please try again.`,
-          position: "bottom", // or 'top'
+          position: "bottom",
           visibilityTime: 3000,
         });
         throw error;
@@ -193,20 +170,14 @@ const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
     [currentBook]
   );
 
-  // Remember to expose 'updateBook' in your useBookData context return bundle!
-
   useEffect(() => {
-    // 1. Explicitly type the unsubscribe callback
     let unsubscribe: (() => void) | undefined;
 
     const channel = `databases.${DATABASE_ID}.collections.${COLLECTION_ID}.documents`;
 
     if (user) {
       fetchBooks();
-
-      // 2. Type cast or generic cast the response if Appwrite SDK supports it, or assert the payload
       unsubscribe = client.subscribe(channel, (response) => {
-        // Assert payload explicitly as IBook to resolve the ts(2345) array mismatch
         const payload = response.payload as IBook;
         const events = response.events;
 
@@ -229,7 +200,6 @@ const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
       setIsLoading(false);
     }
 
-    // 3. Critically important: clean up subscription to prevent memory leaks
     return () => {
       if (unsubscribe) {
         unsubscribe();
@@ -261,14 +231,6 @@ const BookContextProvider: FC<PropsWithChildren> = ({ children }) => {
 
   return <BookContext.Provider value={value}>{children}</BookContext.Provider>;
 };
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
 
 export default BookContextProvider;
 

@@ -14,7 +14,7 @@ import {
 import { ActivityIndicator, Alert, StyleSheet, View } from "react-native";
 import { AppwriteException, ID } from "react-native-appwrite";
 import Toast from "react-native-toast-message";
-import { IAuthContextState, IUser } from "../types/interface";
+import type { IAuthContextState, IUser } from "../types/interface";
 
 const AuthContext = createContext<IAuthContextState | undefined>(undefined);
 
@@ -22,9 +22,8 @@ const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
   const { theme } = useTheme();
   const [user, setUser] = useState<IUser | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Track active session recovery
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Restore session on boot
   useEffect(() => {
     const restoreSession = async () => {
       try {
@@ -35,7 +34,6 @@ const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
           name: currentAccount.name,
         });
       } catch {
-        // No active session — user stays null
       } finally {
         setIsLoading(false);
       }
@@ -44,7 +42,6 @@ const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
     restoreSession();
   }, []);
 
-  // 1. LOGIN LOGIC
   const login = useCallback(async (email: string, password: string) => {
     try {
       await account.createEmailPasswordSession({ email, password });
@@ -67,7 +64,6 @@ const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
     }
   }, []);
 
-  // 2. REGISTER LOGIC
   const register = useCallback(
     async (name: string, email: string, password: string) => {
       const userId = ID.unique();
@@ -94,7 +90,6 @@ const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
     []
   );
 
-  // 3. LOGOUT LOGIC
   const logout = useCallback(async () => {
     try {
       await account.deleteSession({ sessionId: "current" });
@@ -105,8 +100,6 @@ const AuthContextProvider: FC<PropsWithChildren> = ({ children }) => {
       router.replace("/");
     }
   }, []);
-
-  // 🛠️ FIX: Added jwtToken and isLoading to the dependency tracking array
   const value = useMemo(
     (): IAuthContextState => ({
       user,
