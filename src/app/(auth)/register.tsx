@@ -1,23 +1,8 @@
-import { useAuthData } from "@/context/AuthContext";
-import { useState } from "react";
-import AuthScreen from "../../components/AuthScreen";
+import AuthScreen from "@/components/AuthScreen/AuthScreen";
+import useAuth from "./hooks/useAuth";
 
 const RegisterPage = () => {
-  const { register } = useAuthData();
-  const [loading, setLoading] = useState(false);
-
-  const handleRegisterSubmit = async (
-    email: string,
-    password: string,
-    name = ""
-  ) => {
-    setLoading(true);
-    try {
-      await register(email, password, name);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { handleRegisterSubmit, loading } = useAuth();
 
   return (
     <AuthScreen

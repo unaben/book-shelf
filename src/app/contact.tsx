@@ -1,77 +1,29 @@
 import { Color } from "@/constants/Color";
 import { useTheme } from "@/hooks/useTheme";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
 import {
-  Alert,
-  Keyboard,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
+import useContactScreen from "./hooks/useContactScreen";
 
 const ContactScreen = () => {
   const { theme, globalColors } = useTheme();
-  const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
-  const [isSending, setIsSending] = useState(false);
-
-  const handleSendMessage = () => {
-    if (!email.trim() || !subject.trim() || !message.trim()) {
-      Alert.alert(
-        "Incomplete Fields",
-        "Please populate all fields before dispatching your message."
-      );
-      Toast.show({
-        type: "info",
-        text1: "Incomplete Fields",
-        text2: "Please populate all fields before dispatching your message.",
-        position: "top",
-        visibilityTime: 3000,
-      });
-      return;
-    }
-
-    const emailRegex = /\S+@\S+\.\S+/;
-    if (!emailRegex.test(email)) {
-      Alert.alert(
-        "Invalid Input",
-        "Please supply a valid email distribution address."
-      );
-      Toast.show({
-        type: "info",
-        text1: "Invalid Input",
-        text2: "Please supply a valid email distribution address.",
-        position: "top",
-        visibilityTime: 3000,
-      });
-      return;
-    }
-
-    Keyboard.dismiss();
-    setIsSending(true);
-
-    setTimeout(() => {
-      setIsSending(false);
-      Toast.show({
-        type: "success",
-        text1: "Message Dispatched",
-        text2:
-          "Thank you! Your feedback has been safely logged. We will follow up if required.",
-        position: "top",
-        visibilityTime: 3000,
-      });
-      setEmail("");
-      setSubject("");
-      setMessage("");
-    }, 1500);
-  };
+  const {
+    handleSendMessage,
+    email,
+    setEmail,
+    subject,
+    setSubject,
+    message,
+    setMessage,
+    isSending,
+  } = useContactScreen()
 
   return (
     <SafeAreaView
