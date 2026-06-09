@@ -1,56 +1,105 @@
-# Welcome to your Expo app 👋
+# Shelfie
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile app for managing your personal book collection. Built with React Native, Expo, and Appwrite.
 
-## Get started
+---
 
-1. Install dependencies
+## What it does
 
-   ```bash
-   npm install
-   ```
+- Create an account and log in
+- Add books to your shelf with a title, author, and description
+- View, edit, and delete books
+- Real-time updates via Appwrite subscriptions
+- Light and dark mode support
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## Tech stack
 
-In the output, you'll find options to open the app in a
+- [Expo](https://expo.dev) (SDK 56) with Expo Router for file-based navigation
+- [React Native](https://reactnative.dev) 0.85
+- [Appwrite](https://appwrite.io) for auth, database, and real-time events
+- TypeScript throughout
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Project structure
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+src/
+├── app/                  # Screens (Expo Router file-based routing)
+│   ├── index.tsx         # Home screen
+│   ├── (auth)/           # Login and register screens
+│   └── (dashboard)/      # Protected tab screens: books, profile, create
+├── components/           # UI components grouped by feature
+├── context/              # AuthContext and BookContext
+├── hooks/                # useTheme, useHandleBack, useOrientation, etc.
+├── lib/                  # Appwrite client setup
+├── types/                # Shared TypeScript interfaces
+└── constants/            # Colors and spacing tokens
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## Getting started
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### Prerequisites
 
-## Learn more
+- Node.js 18+
+- Expo CLI — `npm install -g expo-cli`
+- An [Appwrite](https://appwrite.io) project with a `books` collection
 
-To learn more about developing your project with Expo, look at the following resources:
+### Install
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+git clone <your-repo-url>
+cd react_native_tut
+npm install
+```
 
-## Join the community
+### Appwrite setup
 
-Join our community of developers creating universal apps.
+The Appwrite config lives in `src/lib/appwrite.ts`. Update the following to point to your own project:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```ts
+client
+  .setProject("YOUR_PROJECT_ID")
+  .setEndpoint("YOUR_APPWRITE_ENDPOINT")
+  .setPlatform("YOUR_PLATFORM_ID");
+```
+
+Your `books` collection needs these fields:
+
+| Field         | Type   |
+|---------------|--------|
+| `title`       | string |
+| `author`      | string |
+| `description` | string |
+| `userId`      | string |
+
+### Run
+
+```bash
+# Start dev server
+npm start
+
+# Run on Android
+npm run android
+
+# Run on iOS
+npm run ios
+```
+
+---
+
+## Authentication
+
+Auth is handled by Appwrite's email/password sessions. The `AuthContext` restores the session on app boot and exposes `login`, `register`, and `logout`. All dashboard routes are protected by `ProtectDashboardRoute`, which redirects unauthenticated users to the home screen.
+
+---
+
+## Notes
+
+- The app is portrait-only
+- Dark/light mode follows the system setting
+- Real-time book updates use Appwrite's `client.subscribe()` — no manual refresh needed after create/update/delete
