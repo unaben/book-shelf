@@ -27,7 +27,6 @@ const BookDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
 
-  // Synchronize database state with the incoming dynamic URL parameter
   useEffect(() => {
     const loadDocument = async () => {
       if (!id) return;
@@ -57,7 +56,6 @@ const BookDetails = () => {
       edges={["top"]}
       style={[styles.container, { backgroundColor: theme.background }]}
     >
-      {/* Top Header Navigation Row */}
       <View style={styles.headerRow}>
         <TouchableOpacity
           onPress={handleBack}
@@ -85,7 +83,6 @@ const BookDetails = () => {
         )}
       </View>
 
-      {/* Conditional Content Layout Render States */}
       {screenLoading ? (
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color={globalColors.primary} />
@@ -170,7 +167,6 @@ const BookDetails = () => {
                   ]}
                 />
 
-                {/* Delete Option Action Trigger Button */}
                 <TouchableOpacity
                   style={[
                     styles.deleteButton,

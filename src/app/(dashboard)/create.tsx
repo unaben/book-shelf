@@ -26,13 +26,9 @@ const Create = () => {
   const router = useRouter();
   const { theme, globalColors } = useTheme();
   const { createBook } = useBookData();
-
-  // Form Fields State
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
-
-  // Local UI States
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<BookFormErrors>({});
 
@@ -66,23 +62,16 @@ const Create = () => {
 
     setIsSubmitting(true);
     try {
-      // Let Appwrite take care of the heavy lifting.
-      // Realtime subscription handles adding the UI card seamlessly.
-      // Execute the Appwrite database insertion via your context hook
       await createBook({
         title: title.trim(),
         author: author.trim(),
         description: description.trim(),
       });
-      // Reset form states cleanly upon success
       setTitle("");
       setAuthor("");
       setDescription("");
-
-      // Auto-navigate user to their book shelf view inside the tab cluster
       router.push("/(dashboard)/books");
     } catch (error) {
-      // Errors are already handled visually with an Alert inside your context file
       console.error("Submission transaction interrupted:", error);
     } finally {
       setIsSubmitting(false);
@@ -95,7 +84,6 @@ const Create = () => {
         edges={["top"]}
         style={[styles.container, { backgroundColor: theme.background }]}
       >
-        {/* Header Navigation Bar */}
         <View style={styles.headerRow}>
           <TouchableOpacity
             onPress={handleBack}
